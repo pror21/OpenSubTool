@@ -1,5 +1,6 @@
 package gr.roropoulos.opensubtool.helper;
 
+import gr.roropoulos.opensubtool.OpenSubTool;
 import gr.roropoulos.opensubtool.model.Language;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -9,13 +10,14 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LanguageHelper {
-    public static List<Language> getLanguageList(File xml) {
+    public static List<Language> getLanguageList() {
         List<Language> languageList = new ArrayList<>();
-
+        InputStream xml = OpenSubTool.class.getResourceAsStream("/languages.xml");
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();

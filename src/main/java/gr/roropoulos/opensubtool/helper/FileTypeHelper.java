@@ -1,24 +1,24 @@
 package gr.roropoulos.opensubtool.helper;
 
+import gr.roropoulos.opensubtool.OpenSubTool;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class FileTypeHelper {
 
-    public static List<String> getFileTypeList(File file) {
+    public static List<String> getFileTypeList() {
         ArrayList<String> filetypeList = new ArrayList<>();
-        try {
-            Scanner s = new Scanner(file);
-            while (s.hasNext()) {
-                filetypeList.add(s.next());
-            }
-            s.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        InputStream filetypes = OpenSubTool.class.getResourceAsStream("/filetypes.txt");
+        Scanner s = new Scanner(filetypes);
+        while (s.hasNext()) {
+            filetypeList.add(s.next());
         }
+        s.close();
         return filetypeList;
     }
 }

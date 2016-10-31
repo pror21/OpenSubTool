@@ -37,8 +37,7 @@ public class MovieManager {
 
     public List<Movie> getInitialMovieList() {
         List<Movie> moviePathList = new ArrayList<>();
-        File fileType = new File(getClass().getClassLoader().getResource("filetypes.txt").getFile());
-        List<String> fileTypeList = FileTypeHelper.getFileTypeList(fileType);
+        List<String> fileTypeList = FileTypeHelper.getFileTypeList();
 
         try (Stream<Path> paths = Files.walk(parentPath)) {
             paths.forEach(filePath -> {
