@@ -92,15 +92,10 @@ public class MainController implements Initializable {
         // Load user and login if exists
         if (prefs.get("username", null) != null && prefs.get("password", null) != null) {
             login(prefs.get("username", null), prefs.get("password", null), prefs.get("lang", "eng"));
-            loggedInHBox.setVisible(true);
-            loggedOutHBox.setVisible(false);
-            fetchButton.setDisable(false);
-            downloadButton.setDisable(false);
         }
 
         // Load languages
-        File languagesFile = new File(getClass().getClassLoader().getResource("languages.xml").getFile());
-        List<Language> languageList = LanguageHelper.getLanguageList(languagesFile);
+        List<Language> languageList = LanguageHelper.getLanguageList();
         populateLangComboBox(languageList);
 
         // Load language and preselect if exist
@@ -282,8 +277,17 @@ public class MainController implements Initializable {
             fetchButton.setDisable(false);
             downloadButton.setDisable(false);
         } catch (XmlRpcException e) {
+            showFailedLoginDialog();
             e.printStackTrace();
         }
+    }
+
+    private void showFailedLoginDialog() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Login failed");
+        alert.setHeaderText("User authentication failed.");
+        alert.setContentText("Please check your username and your password.\nIf you don't have an OpenSubtitles account please register one.");
+        alert.showAndWait();
     }
 
     @FXML
