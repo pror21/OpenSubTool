@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.*?>
+<GridPane fx:id="aboutGridPane" hgap="14.0" maxHeight="+Infinity" maxWidth="+Infinity" minHeight="-Infinity"
+          minWidth="-Infinity" prefHeight="315.0" prefWidth="471.0" vgap="20.0" xmlns="http://javafx.com/javafx/8.0.60"
+          xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox maxHeight="+Infinity" maxWidth="+Infinity" minHeight="-Infinity" prefWidth="443.0" spacing="7.0"
+              GridPane.rowIndex="0">
+            <children>
+                <Label fx:id="messageLabel" text="About:" textAlignment="LEFT" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="13.0"/>
+                    </font>
+                    <effect>
+                        <Reflection fraction="0.74" topOffset="-10.0"/>
+                    </effect>
+                </Label>
+                <Line endX="100.0" startX="-100.0">
+                    <effect>
+                        <BoxBlur height="0.0" iterations="2" width="240.0"/>
+                    </effect>
+                </Line>
+                <Label fx:id="detailsLabel"
+                       text="OpenSubTool is an open-source application, made for those who want to get rid of the subtitle search hassle. It finds subtitles that matches exactly to your videos by doing a fast hash-calculation of your videos. So, no more time to spare, grab your popcorn faster than before! "
+                       textAlignment="LEFT" wrapText="true">
+                    <font>
+                        <Font size="12.0"/>
+                    </font>
+                </Label>
+                <Label fx:id="messageLabel1" text="Credits:" textAlignment="LEFT" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="13.0"/>
+                    </font>
+                    <effect>
+                        <Reflection topOffset="-10.0"/>
+                    </effect>
+                </Label>
+                <Line endX="100.0" startX="-100.0">
+                    <effect>
+                        <BoxBlur height="0.0" iterations="2" width="240.0"/>
+                    </effect>
+                </Line>
+                <Hyperlink text="OpenSubtitles.org: Subtitles Service Provider, OSDb &amp; API">
+                    <font>
+                        <Font name="System Bold" size="12.0"/>
+                    </font>
+                </Hyperlink>
+                <Hyperlink text="OpenSub4J: Java Libraries by Wojciech Tekiela"/>
+                <Label fx:id="messageLabel11" text="Author:" textAlignment="LEFT" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="13.0"/>
+                    </font>
+                    <effect>
+                        <Reflection topOffset="-10.0"/>
+                    </effect>
+                </Label>
+                <Line endX="100.0" startX="-100.0">
+                    <effect>
+                        <BoxBlur height="0.0" iterations="2" width="240.0"/>
+                    </effect>
+                </Line>
+                <Label prefWidth="381.0" text="Me, Panos Roropoulos. You can find me at my page: www.roropoulos.gr"/>
+                <Label layoutX="10.0" layoutY="206.0"
+                       text="Feel free to come in contact with me at p.roropoulos@gmail.com"/>
+            </children>
+        </VBox>
+    </children>
+    <columnConstraints>
+        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="+Infinity" minWidth="-Infinity"/>
+    </columnConstraints>
+    <padding>
+        <Insets bottom="14.0" left="14.0" right="14.0" top="14.0"/>
+    </padding>
+    <rowConstraints>
+        <RowConstraints maxHeight="+Infinity" minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS"/>
+    </rowConstraints>
+</GridPane>
