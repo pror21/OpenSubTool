@@ -27,7 +27,7 @@
                     </effect>
                 </Line>
                 <Label fx:id="detailsLabel"
-                       text="OpenSubTool is an open-source application, made for those who want to get rid of the subtitle search hassle. It finds subtitles that matches exactly to your videos by doing a fast hash-calculation of your videos. So, no more time to spare, grab your popcorn faster than before! "
+                       text="OpenSubTool is an open-source application, made for those who want to get rid of the movieSubtitle search hassle. It finds subtitles that matches exactly to your videos by doing a fast hash-calculation of your videos. So, no more time to spare, grab your popcorn faster than before! "
                        textAlignment="LEFT" wrapText="true">
                     <font>
                         <Font size="12.0"/>

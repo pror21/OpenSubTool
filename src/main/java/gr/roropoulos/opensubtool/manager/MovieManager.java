@@ -46,9 +46,9 @@ public class MovieManager {
                         Movie movie = new Movie();
                         movie.setMovieFile(filePath.toFile());
                         if (checkIfSubtitleExist(movie))
-                            movie.setDownloadProperty(false);
+                            movie.setMovieSubDownload(false);
                         else
-                            movie.setDownloadProperty(true);
+                            movie.setMovieSubDownload(true);
                         moviePathList.add(movie);
                     }
                 }

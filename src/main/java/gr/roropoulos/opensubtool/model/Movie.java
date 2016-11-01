@@ -8,8 +8,8 @@ import java.io.File;
 public class Movie {
 
     private File movieFile;
-    private Subtitle subtitle;
-    private BooleanProperty downloadProperty = new SimpleBooleanProperty(false);
+    private Subtitle movieSubtitle;
+    private BooleanProperty movieSubDownload = new SimpleBooleanProperty(false);
 
     public File getMovieFile() {
         return movieFile;
@@ -19,23 +19,23 @@ public class Movie {
         this.movieFile = movieFile;
     }
 
-    public Subtitle getSubtitle() {
-        return subtitle;
+    public Subtitle getMovieSubtitle() {
+        return movieSubtitle;
     }
 
-    public void setSubtitle(Subtitle subtitle) {
-        this.subtitle = subtitle;
+    public void setMovieSubtitle(Subtitle movieSubtitle) {
+        this.movieSubtitle = movieSubtitle;
     }
 
-    public boolean getDownloadProperty() {
-        return downloadProperty.get();
+    public boolean getMovieSubDownload() {
+        return movieSubDownload.get();
     }
 
-    public BooleanProperty downloadProperty() {
-        return downloadProperty;
+    public BooleanProperty movieSubDownloadProperty() {
+        return movieSubDownload;
     }
 
-    public void setDownloadProperty(boolean downloadProperty) {
-        this.downloadProperty.set(downloadProperty);
+    public void setMovieSubDownload(boolean movieSubDownload) {
+        this.movieSubDownload.set(movieSubDownload);
     }
 }

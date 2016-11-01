@@ -66,12 +66,12 @@ public class MainController implements Initializable {
     @FXML
     private Button fetchButton, downloadButton;
 
-    private List<Movie> movieList;
+    private ObservableList<Movie> movieList;
     private Preferences prefs;
     private MovieManager movieManager;
     private OpenSubtitles openSubtitles = null;
     private Timer timer;
-    private static final String USER_AGENT = "OSTestUserAgentTemp";
+    private static final String USER_AGENT = "opensubtool";
 
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         // Set Preferences node
@@ -118,21 +118,21 @@ public class MainController implements Initializable {
         // Set table view context menu items
         selectAllMenuItem.setOnAction(t -> {
             for (Movie movie : movieList)
-                movie.setDownloadProperty(true);
+                movie.setMovieSubDownload(true);
         });
 
         selectOnlyMenuItem.setOnAction(t -> {
             for (Movie movie : movieList) {
                 if (movieManager.checkIfSubtitleExist(movie))
-                    movie.setDownloadProperty(false);
+                    movie.setMovieSubDownload(false);
                 else
-                    movie.setDownloadProperty(true);
+                    movie.setMovieSubDownload(true);
             }
         });
 
         deselectAllMenuItem.setOnAction(t -> {
             for (Movie movie : movieList)
-                movie.setDownloadProperty(false);
+                movie.setMovieSubDownload(false);
         });
     }
 
@@ -140,8 +140,7 @@ public class MainController implements Initializable {
         moviesTableView.getItems().clear();
         movieManager = new MovieManager(moviePath);
         if (movieManager.checkIfPathExists()) {
-            movieList = movieManager.getInitialMovieList();
-            populateTableView(movieList);
+            setupTableView(movieManager.getInitialMovieList());
             setupCheckBoxColumn();
         }
     }
@@ -151,12 +150,11 @@ public class MainController implements Initializable {
         langComboBox.valueProperty().addListener((ov, previous, current) -> prefs.put("lang", current.getCode()));
     }
 
-    private void populateTableView(List<Movie> moviePathList) {
-        ObservableList<Movie> pathObservableList = FXCollections.observableList(moviePathList);
-        moviesTableView.getItems().addAll(pathObservableList);
+    private void setupTableView(List<Movie> movieList) {
+        this.movieList = FXCollections.observableList(movieList);
+        moviesTableView.getItems().setAll(this.movieList);
         movieTitleTableColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMovieFile().getName()));
     }
-
 
     @FXML
     private void browseButtonActionHandler() {
@@ -294,34 +292,32 @@ public class MainController implements Initializable {
     private void fetchButtonActionHandler() {
         Language selectedLanguage = langComboBox.getSelectionModel().getSelectedItem();
         for (Movie movie : movieList) {
-            if (movie.getDownloadProperty()) {
+            if (movie.getMovieSubDownload()) {
                 Subtitle subtitle = new Subtitle();
-                List<SubtitleInfo> movieSubtitleInfoList;
 
                 // Get subs from OpenSubtitles.org
-                movieSubtitleInfoList = movieManager.fetchMovieSubtitles(movie, selectedLanguage.getCode(), openSubtitles);
+                List<SubtitleInfo> movieSubtitleInfoList = movieManager.fetchMovieSubtitles(movie, selectedLanguage.getCode(), openSubtitles);
 
                 // Set subtitles
-                subtitle.getSubtitleInfoList().setAll(movieSubtitleInfoList);
-                movie.setSubtitle(subtitle);
+                subtitle.getSubtitleList().addAll(movieSubtitleInfoList);
+                movie.setMovieSubtitle(subtitle);
 
                 // Pre-select the subtitle that has the most downloads
-                if (!subtitle.getSubtitleInfoList().isEmpty()) {
-                    SubtitleInfo subtitleInfoPopular = Collections.max(subtitle.getSubtitleInfoList(), Comparator.comparing(SubtitleInfo::getDownloadsNo));
-                    movie.getSubtitle().setSelectedInfo(subtitleInfoPopular);
+                if (!subtitle.getSubtitleList().isEmpty()) {
+                    SubtitleInfo subtitleInfoPopular = Collections.max(subtitle.getSubtitleList(), Comparator.comparing(SubtitleInfo::getDownloadsNo));
+                    movie.getMovieSubtitle().setSubtitleSelected(subtitleInfoPopular);
                 }
             }
         }
-        populateSubtitleChoiceBox();
+        setupSubtitleChoiceBox();
     }
 
-    private void populateSubtitleChoiceBox() {
+    private void setupSubtitleChoiceBox() {
         if (!movieList.isEmpty()) {
-            movieSubtitleTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getSubtitle()));
+            movieSubtitleTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getMovieSubtitle()));
             movieSubtitleTableColumn.setCellFactory(col -> {
                 ComboBox<SubtitleInfo> combo = new ComboBox<>();
                 combo.setMaxWidth(Double.MAX_VALUE);
-
                 combo.setConverter(
                         new StringConverter<SubtitleInfo>() {
                             @Override
@@ -343,20 +339,18 @@ public class MainController implements Initializable {
                     @Override
                     protected void updateItem(Subtitle subInfo, boolean empty) {
                         super.updateItem(subInfo, empty);
-                        if (empty) {
+                        if (empty || subInfo == null || subInfo.getSubtitleList().isEmpty()) {
                             setGraphic(null);
                         } else {
-                            if (subInfo != null) {
-                                combo.getItems().setAll(subInfo.getSubtitleInfoList());
-                                combo.setValue(subInfo.getSelectedSubtitleInfo());
-                            }
+                            combo.getItems().setAll(subInfo.getSubtitleList());
+                            combo.setValue(subInfo.getSubtitleSelected());
                             setGraphic(combo);
                         }
                     }
                 };
 
                 combo.valueProperty().addListener((obs, oldValue, newValue) ->
-                        cell.getItem().setSelectedInfo(newValue));
+                        cell.getItem().setSubtitleSelected(newValue));
 
                 return cell;
             });
@@ -364,10 +358,10 @@ public class MainController implements Initializable {
     }
 
     private void setupCheckBoxColumn() {
-        checkBoxTableColumn.setCellValueFactory(new PropertyValueFactory<>("downloadProperty"));
+        checkBoxTableColumn.setCellValueFactory(new PropertyValueFactory<>("movieSubDownloadProperty"));
         checkBoxTableColumn.setCellFactory(p -> {
             final CheckBoxTableCell<Movie, Boolean> ctCell = new CheckBoxTableCell<>();
-            ctCell.setSelectedStateCallback(index -> moviesTableView.getItems().get(index).downloadProperty());
+            ctCell.setSelectedStateCallback(index -> moviesTableView.getItems().get(index).movieSubDownloadProperty());
             return ctCell;
         });
     }
@@ -376,7 +370,7 @@ public class MainController implements Initializable {
     private void downloadButtonActionHandler() {
         int counter = 0;
         for (Movie movie : movieList) {
-            if (movie.getDownloadProperty() && movie.getSubtitle() != null && movie.getSubtitle().getSelectedSubtitleInfo() != null) {
+            if (movie.getMovieSubDownload() && movie.getMovieSubtitle() != null && movie.getMovieSubtitle().getSubtitleSelected() != null) {
                 SubtitleFileManager subtitleFileManager = new SubtitleFileManager(movie);
                 subtitleFileManager.downloadSubtitle();
                 counter++;

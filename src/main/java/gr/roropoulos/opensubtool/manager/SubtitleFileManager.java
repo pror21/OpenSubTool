@@ -23,7 +23,7 @@ public class SubtitleFileManager {
         File subtitleFile = new File(subtitleGzPath);
 
         try {
-            FileUtils.copyURLToFile(URLs.newURL(movie.getSubtitle().getSelectedSubtitleInfo().getDownloadLink()), subtitleFile);
+            FileUtils.copyURLToFile(URLs.newURL(movie.getMovieSubtitle().getSubtitleSelected().getDownloadLink()), subtitleFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
