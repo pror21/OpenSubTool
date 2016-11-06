@@ -4,6 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="590.0" prefWidth="741.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gr.roropoulos.opensubtool.controller.MainController">
@@ -28,9 +30,16 @@
                             <children>
                                 <HBox fx:id="loggedInHBox" alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" visible="false">
                                     <children>
-                                        <Label text="Logged in as: " />
+                                        <Label text="Logged in as:" />
                                         <Label fx:id="usernameLabel" text="USERNAME" />
-                                        <Button mnemonicParsing="false" onAction="#logoutButtonActionHandler" text="Logout" />
+                                        <Button focusTraversable="false" mnemonicParsing="false" onAction="#logoutButtonActionHandler" prefHeight="25.0">
+                                 <graphic>
+                                    <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@/img/logout.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
                                     </children>
                                 </HBox>
                                 <HBox fx:id="loggedOutHBox" alignment="CENTER_RIGHT" spacing="5.0">
@@ -51,26 +60,35 @@
                     <top>
                         <HBox alignment="CENTER_LEFT" prefHeight="45.0" prefWidth="571.0" spacing="5.0" BorderPane.alignment="CENTER">
                             <children>
-                                <TextField fx:id="directoryTextField" editable="false" prefHeight="25.0" prefWidth="202.0" promptText="Select your movie directory" />
+                                <TextField fx:id="directoryTextField" editable="false" prefHeight="25.0" prefWidth="173.0" promptText="Select your movie directory" />
                                 <Button mnemonicParsing="false" onAction="#browseButtonActionHandler" text="Browse" />
+                        <Button mnemonicParsing="false" onAction="#reloadButtonActionHandler">
+                           <graphic>
+                              <ImageView fitHeight="17.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@/img/reload.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
                                 <Separator orientation="VERTICAL" prefHeight="44.0" prefWidth="16.0">
                                     <padding>
                                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </Separator>
                                 <Label text="Language:" />
-                                <ComboBox fx:id="langComboBox" prefHeight="25.0" prefWidth="114.0" />
+                                <ComboBox fx:id="langComboBox" prefHeight="25.0" prefWidth="104.0" />
                                 <Separator orientation="VERTICAL" prefHeight="44.0" prefWidth="16.0">
                                     <padding>
                                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                     </padding>
                                 </Separator>
-                                <Button fx:id="fetchButton" mnemonicParsing="false" onAction="#fetchButtonActionHandler" prefHeight="25.0" prefWidth="106.0" text="Fetch Subs" textFill="#d33838">
+                                <Button fx:id="fetchButton" mnemonicParsing="false" onAction="#fetchButtonActionHandler" prefHeight="25.0" prefWidth="101.0" text="Fetch Subs" textFill="#d33838">
                                     <font>
                                         <Font name="System Bold" size="12.0" />
                                     </font>
                                 </Button>
-                                <Button fx:id="downloadButton" mnemonicParsing="false" onAction="#downloadButtonActionHandler" prefWidth="120.0" text="Download Subs" textFill="#377c32">
+                                <Button fx:id="downloadButton" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#downloadButtonActionHandler" prefHeight="25.0" prefWidth="116.0" text="Download Subs" textFill="#377c32">
                                     <font>
                                         <Font name="System Bold" size="12.0" />
                                     </font>

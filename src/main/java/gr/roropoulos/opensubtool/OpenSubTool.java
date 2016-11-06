@@ -22,7 +22,7 @@ public class OpenSubTool extends Application {
             Scene scene = new Scene(rootAnchorPane);
             stage.setScene(scene);
             stage.setTitle("OpenSubTool");
-            stage.setMinWidth(810);
+            stage.setMinWidth(760);
             stage.setMinHeight(590);
             stage.show();
             stage.setOnCloseRequest(e -> {
