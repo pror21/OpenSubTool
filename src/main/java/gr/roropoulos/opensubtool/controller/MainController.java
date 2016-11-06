@@ -6,10 +6,11 @@ import com.github.wtekiela.opensub4j.response.SubtitleInfo;
 import com.sun.webkit.network.URLs;
 import gr.roropoulos.opensubtool.helper.LanguageHelper;
 import gr.roropoulos.opensubtool.manager.MovieManager;
-import gr.roropoulos.opensubtool.manager.SubtitleFileManager;
 import gr.roropoulos.opensubtool.model.Language;
 import gr.roropoulos.opensubtool.model.Movie;
 import gr.roropoulos.opensubtool.model.Subtitle;
+import gr.roropoulos.opensubtool.task.DownloadTask;
+import gr.roropoulos.opensubtool.task.FetchTask;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -42,7 +43,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 public class MainController implements Initializable {
     @FXML
@@ -291,25 +296,32 @@ public class MainController implements Initializable {
     @FXML
     private void fetchButtonActionHandler() {
         Language selectedLanguage = langComboBox.getSelectionModel().getSelectedItem();
-        for (Movie movie : movieList) {
-            if (movie.getMovieSubDownload()) {
-                Subtitle subtitle = new Subtitle();
+        List<FetchTask> fetchTaskList = new ArrayList<>();
 
-                // Get subs from OpenSubtitles.org
-                List<SubtitleInfo> movieSubtitleInfoList = movieManager.fetchMovieSubtitles(movie, selectedLanguage.getCode(), openSubtitles);
-
-                // Set subtitles
-                subtitle.getSubtitleList().addAll(movieSubtitleInfoList);
-                movie.setMovieSubtitle(subtitle);
-
-                // Pre-select the subtitle that has the most downloads
-                if (!subtitle.getSubtitleList().isEmpty()) {
-                    SubtitleInfo subtitleInfoPopular = Collections.max(subtitle.getSubtitleList(), Comparator.comparing(SubtitleInfo::getDownloadsNo));
-                    movie.getMovieSubtitle().setSubtitleSelected(subtitleInfoPopular);
+        movieList.stream().filter(Movie::getMovieSubDownload).forEach(movie -> {
+            FetchTask fetchTask = new FetchTask(movie, selectedLanguage.getCode(), openSubtitles);
+            fetchTask.setOnSucceeded(e -> {
+                try {
+                    Subtitle subtitle = new Subtitle();
+                    subtitle.getSubtitleList().addAll(fetchTask.get());
+                    movie.setMovieSubtitle(subtitle);
+                    if (!subtitle.getSubtitleList().isEmpty()) {
+                        SubtitleInfo subtitleInfoPopular = Collections.max(subtitle.getSubtitleList(), Comparator.comparing(SubtitleInfo::getDownloadsNo));
+                        movie.getMovieSubtitle().setSubtitleSelected(subtitleInfoPopular);
+                    }
+                    setupSubtitleChoiceBox();
+                } catch (InterruptedException | ExecutionException e1) {
+                    e1.printStackTrace();
                 }
-            }
+            });
+            fetchTaskList.add(fetchTask);
+        });
+
+        if(!fetchTaskList.isEmpty()) {
+            ExecutorService executor = Executors.newFixedThreadPool(fetchTaskList.size());
+            fetchTaskList.forEach(executor::submit);
+            executor.shutdown();
         }
-        setupSubtitleChoiceBox();
     }
 
     private void setupSubtitleChoiceBox() {
@@ -368,33 +380,52 @@ public class MainController implements Initializable {
 
     @FXML
     private void downloadButtonActionHandler() {
-        int counter = 0;
-        for (Movie movie : movieList) {
-            if (movie.getMovieSubDownload() && movie.getMovieSubtitle() != null && movie.getMovieSubtitle().getSubtitleSelected() != null) {
-                SubtitleFileManager subtitleFileManager = new SubtitleFileManager(movie);
-                subtitleFileManager.downloadSubtitle();
-                counter++;
-            }
+        List<Movie> downloadMovieList = new ArrayList<>();
+
+        fetchButton.setDisable(true);
+        downloadButton.setDisable(true);
+        moviesTableView.setDisable(true);
+
+        downloadMovieList.addAll(movieList.stream()
+                .filter(movie -> movie.getMovieSubDownload() && movie.getMovieSubtitle() != null && movie.getMovieSubtitle().getSubtitleSelected() != null)
+                .collect(Collectors.toList()));
+
+        if(downloadMovieList.isEmpty()) {
+            fetchButton.setDisable(false);
+            downloadButton.setDisable(false);
+            moviesTableView.setDisable(false);
         }
-        showResultDialog(counter);
+        else {
+            DownloadTask downloadTask = new DownloadTask(downloadMovieList);
+            downloadTask.setOnSucceeded(e -> {
+                showResultDialog(downloadTask.getValue());
+                fetchButton.setDisable(false);
+                downloadButton.setDisable(false);
+                moviesTableView.setDisable(false);
+            });
+
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.submit(downloadTask);
+            executor.shutdown();
+        }
+    }
+
+    @FXML
+    private void reloadButtonActionHandler() {
+        movieList.clear();
+        moviesTableView.getItems().clear();
+        loadMovieFiles(directoryTextField.getText());
     }
 
     private void showResultDialog(int counter) {
         Alert alert;
-        if (counter < 1) {
-            alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Subtitles not found or set to be downloaded.");
-        } else {
-            alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Success");
-            alert.setHeaderText(null);
-            alert.setContentText(counter + " subtitle(s) downloaded!");
-            movieList.clear();
-            moviesTableView.getItems().clear();
-            loadMovieFiles(directoryTextField.getText());
-        }
+        alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText(null);
+        alert.setContentText("Subtitle(s) downloaded: " + counter);
+        movieList.clear();
+        moviesTableView.getItems().clear();
+        loadMovieFiles(directoryTextField.getText());
         alert.showAndWait();
     }
 
@@ -424,4 +455,5 @@ public class MainController implements Initializable {
             }
         });
     }
+
 }
